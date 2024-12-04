@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>conveyor</name>
+  <name>error_processing</name>
   <version>0.0.0</version>
-  <description>AMR-3 conveyor control node</description>
+  <description>AMR-3 error process node</description>
   <maintainer email="aq3480@gmail.com">Hyunwoo-kim</maintainer>
   <license>TODO: License declaration</license>
 

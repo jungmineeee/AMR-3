@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 import glob
 import os
 
-package_name = 'conveyor'
+package_name = 'error_processing'
 
 setup(
     name=package_name,
@@ -19,12 +19,12 @@ setup(
     zip_safe=True,
     maintainer='Hyunwoo-kim',
     maintainer_email='aq3480@gmail.com',
-    description='AMR-3 conveyor control node',
+    description='AMR-3 error process node',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'conveyor = conveyor.conveyor:main',
+            'error = error_processing.error:main',
         ],
     },
 )
