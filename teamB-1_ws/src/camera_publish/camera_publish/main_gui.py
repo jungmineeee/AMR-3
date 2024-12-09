@@ -13,7 +13,7 @@ import numpy as np
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 
-#####################################################
+####################################################
 class MainNode(Node):
     def __init__(self):
         super().__init__('main_node')
@@ -23,11 +23,13 @@ class MainNode(Node):
         
         # 퍼블리셔 생성
         self.publisher = self.create_publisher(
-                String,      # 추후 수정
-                'gui_topic', # 추후 수정 
-                10, # qos
-                callback_group=self.callback_group # 콜백 그룹
+            String,
+            'gui_topic',
+            10, # qos
+            callback_group=self.callback_group # 콜백 그룹
         )
+        
+        # 여러가지 상태 시그널을 받는 서브스크라이버 하나 필요할듯 ?
 
     def webcam_subscription(self, topic_name, callback):
         """Initialize the subscription to the given topic."""
@@ -59,7 +61,6 @@ class MainNode(Node):
         msg.data = message
         self.publisher.publish(msg)
         self.get_logger().info(f"퍼블리시 (메세지 / 신호): {message}")
-        # 추후 로직 추가
 
 
 #####################################################
@@ -80,7 +81,7 @@ class Ros2Worker(QThread):
         self.node = MainNode()
         
         self.node.webcam_subscription(self.topic_name_cam, self.handle_webcam_image)
-        # self.node.robotcam_subscription(self.topic_name_robot, self.handle_robotcam_image)
+        self.node.robotcam_subscription(self.topic_name_robot, self.handle_robotcam_image)
         
         # MultiThreadedExecutor 설정
         self.executor = MultiThreadedExecutor(num_threads=3)
@@ -105,9 +106,38 @@ class Ros2Worker(QThread):
         self.robotcam_image_received.emit(cv_image)
     
     def publish_message(self, message):
-        """Call the MainNode's publish_message method."""
         if self.node:
-            self.node.publish_message(message)
+            if isinstance(message, list) :
+                self.node.publish_message(message[0])
+                self.node.publish_message(message[1])
+                # 작업목록 json까지 두번 퍼블리시 로직
+                
+    #             # 숫자 추출 및 JSON 생성
+    #         job_data = self.extract_numbers(job_text)
+    #         job_json = json.dumps(job_data)
+            # 리스트 위젯에서 선택한 값으로 추출
+    # def extract_numbers(self, text):
+    #     """
+    #     텍스트에서 숫자 값을 추출하고 JSON 생성
+    #     """
+    #     # 정규표현식으로 red, blue, goto 숫자 추출
+    #     red_match = re.search(r'red\s*x(\d+)', text)
+    #     blue_match = re.search(r'blue\s*x(\d+)', text)
+    #     goto_match = re.search(r'goto\s+goal\s+(\d+)', text)
+
+    #     # 숫자 값 추출 (없을 경우 0으로 설정)
+    #     red_count = int(red_match.group(1)) if red_match else 0
+    #     blue_count = int(blue_match.group(1)) if blue_match else 0
+    #     goto_count = int(goto_match.group(1)) if goto_match else 0
+
+    #     # JSON 형식의 데이터 생성
+    #     return {
+    #         "red": red_count,
+    #         "blue": blue_count,
+    #         "to": goto_count
+    #     }
+            else :
+                self.node.publish_message(message)
 
     def stop(self):
         """Stop the ROS2 spinning loop."""
@@ -137,8 +167,20 @@ class MainGUI(QMainWindow):
 
         # Setup UI
         self.setup_ui()
-
         
+        # 작업목록 세팅
+        file_path = "job_list.txt"
+        try:
+            with open(file_path, 'r') as file:
+                for line in file:
+                    line = line.strip()  # Remove leading/trailing whitespace
+                    if line:
+                        formatted_line = line.replace("\\n", "\n")
+                        self.job_list.addItem(formatted_line)
+                        
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found.")
+
         """ 이벤트 연결  """
         self.play_btn.clicked.connect(self.click_play_btn)
         self.stop_btn.clicked.connect(self.click_stop_btn)
@@ -147,6 +189,7 @@ class MainGUI(QMainWindow):
         self.reset_btn.clicked.connect(self.click_reset_btn)
         self.conveyor_start_btn.clicked.connect(self.click_on_btn)
         self.conveyor_stop_btn.clicked.connect(self.click_off_btn)
+        self.study_btn.clicked.connect(self.click_study_btn)
         
 
     """ 슬롯 함수 """
@@ -237,6 +280,9 @@ class MainGUI(QMainWindow):
         """ GUI 상태 트리거 """
         self.conveyor_start_btn.setEnabled(True)
         self.conveyor_stop_btn.setEnabled(False)
+
+    def click_study_btn(self) :
+        self.ros_worker.publish_message("TRAIN")
             
     def update_timer(self):
         """타이머 업데이트"""
@@ -286,9 +332,6 @@ class MainGUI(QMainWindow):
         self.job_list = QListWidget(self.central_widget)
         self.job_list.setObjectName("job_list")
         self.job_list.setGeometry(QRect(30, 450, 261, 161))
-        self.job_list.addItem("[ Job1 ] \nred x2, blue x1, goto goal 1")
-        self.job_list.addItem("[ Job2 ] \nred x1, blue x2, goto goal 2")
-        self.job_list.addItem("[ Job3 ] \nred x1, goto goal3")
 
         # Control Buttons
         self.robot_op_label = QLabel(self.central_widget)
@@ -357,50 +400,41 @@ class MainGUI(QMainWindow):
 
         self.manipulator_run = QPushButton(self.central_widget)
         self.manipulator_run.setObjectName("manipulator_run")
-        self.manipulator_run.setGeometry(QRect(420, 580, 131, 31))
+        self.manipulator_run.setGeometry(QRect(330, 580, 211, 31))
         self.manipulator_run.setText("이동")
         
         self.study_btn = QPushButton(self.central_widget)
         self.study_btn.setObjectName("manipulator_run")
-        self.study_btn.setGeometry(QRect(560, 580, 131, 31))
+        self.study_btn.setGeometry(QRect(560, 580, 211, 31))
         self.study_btn.setText("학습 시작")
 
         # Position Inputs
         self.x_label = QLabel(self.central_widget)
         self.x_label.setObjectName("x_label")
-        self.x_label.setGeometry(QRect(340, 540, 21, 21))
+        self.x_label.setGeometry(QRect(330, 540, 21, 21))
         self.x_label.setText("X:")
 
         self.x_input = QLineEdit(self.central_widget)
         self.x_input.setObjectName("x_input")
-        self.x_input.setGeometry(QRect(360, 540, 71, 21))
+        self.x_input.setGeometry(QRect(350, 540, 101, 21))
 
         self.y_label = QLabel(self.central_widget)
         self.y_label.setObjectName("y_label")
-        self.y_label.setGeometry(QRect(440, 540, 21, 21))
+        self.y_label.setGeometry(QRect(490, 540, 21, 21))
         self.y_label.setText("Y:")
 
         self.y_input = QLineEdit(self.central_widget)
         self.y_input.setObjectName("y_input")
-        self.y_input.setGeometry(QRect(460, 540, 71, 21))
+        self.y_input.setGeometry(QRect(510, 540, 101, 21))
 
         self.z_label = QLabel(self.central_widget)
         self.z_label.setObjectName("z_label")
-        self.z_label.setGeometry(QRect(550, 540, 21, 21))
+        self.z_label.setGeometry(QRect(650, 540, 21, 21))
         self.z_label.setText("Z:")
 
         self.z_input = QLineEdit(self.central_widget)
         self.z_input.setObjectName("z_input")
-        self.z_input.setGeometry(QRect(570, 540, 71, 21))
-
-        self.w_label = QLabel(self.central_widget)
-        self.w_label.setObjectName("w_label")
-        self.w_label.setGeometry(QRect(650, 540, 21, 21))
-        self.w_label.setText("W:")
-
-        self.w_input = QLineEdit(self.central_widget)
-        self.w_input.setObjectName("w_input")
-        self.w_input.setGeometry(QRect(680, 540, 71, 21))
+        self.z_input.setGeometry(QRect(670, 540, 101, 21))
 
         # Time and Status Labels
         self.time_label = QLabel(self.central_widget)
@@ -475,6 +509,7 @@ class MainGUI(QMainWindow):
 
 #####################################################
 # 로그인 페이지
+
 class LoginWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -497,10 +532,10 @@ class LoginWindow(QMainWindow):
 
         # 제목 라벨
         self.name_label = QLabel(self.centralwidget)
-        self.name_label.setGeometry(140, 90, 401, 81)
+        self.name_label.setGeometry(120, 90, 450, 81)
         self.name_label.setFont(QFont("Arial", 40, QFont.Bold))
         self.name_label.setAlignment(Qt.AlignCenter)
-        self.name_label.setText("지옥의 로키 허브")
+        self.name_label.setText("Rokey Fulfillment")
 
         # 버전 라벨
         self.version_label = QLabel(self.centralwidget)
@@ -513,7 +548,7 @@ class LoginWindow(QMainWindow):
         self.label_5.setGeometry(140, 180, 401, 31)
         self.label_5.setFont(QFont("Arial", 16))
         self.label_5.setAlignment(Qt.AlignCenter)
-        self.label_5.setText("일을 하고 싶으면 로그인을!")
+        self.label_5.setText("로그인을 해주세요!")
 
         # 상단 구분선
         self.line = QFrame(self.centralwidget)

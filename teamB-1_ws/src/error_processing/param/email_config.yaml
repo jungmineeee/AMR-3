@@ -1,0 +1,7 @@
+/**: # namespace and node name
+    ros__parameters:
+        email_address: "default@example.com" # 수신인 (사용자 마다 변경 필요 / IMAP 설정 필요)
+        smtp_server: "smtp.domain.com"
+        smtp_port: 587
+        email_user: "user@example.com" # 발신인
+        email_password: "password"

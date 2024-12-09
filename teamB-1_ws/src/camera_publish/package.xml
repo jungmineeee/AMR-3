@@ -3,9 +3,12 @@
 <package format="3">
   <name>camera_publish</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="aq3480@gmail.com">hyunwoo-kim</maintainer>
+  <description>Camera publisher and Main GUI</description>
+  <maintainer email="aq3480@gmail.com">Hyunwoo-kim</maintainer>
   <license>TODO: License declaration</license>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

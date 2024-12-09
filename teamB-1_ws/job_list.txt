@@ -1,0 +1,3 @@
+[ Job 1 ] \n red x2 / blue x1 / goto goal 1 
+[ Job 2 ] \n red x1 / blue x2 / goto goal 2 
+[ Job 3 ] \n red x1 / goto goal 3 

@@ -284,7 +284,7 @@ font-weight: bold;</string>
    <widget class="QLabel" name="x_label">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>330</x>
       <y>540</y>
       <width>21</width>
       <height>21</height>
@@ -297,27 +297,36 @@ font-weight: bold;</string>
    <widget class="QLineEdit" name="x_input">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>350</x>
       <y>540</y>
-      <width>71</width>
+      <width>101</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLineEdit" name="y_input">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>510</x>
       <y>540</y>
-      <width>71</width>
+      <width>101</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="y_label">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>490</x>
       <y>540</y>
       <width>21</width>
       <height>21</height>
@@ -330,37 +339,17 @@ font-weight: bold;</string>
    <widget class="QLineEdit" name="z_input">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>670</x>
       <y>540</y>
-      <width>71</width>
+      <width>101</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="z_label">
-    <property name="geometry">
-     <rect>
-      <x>550</x>
-      <y>540</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Z :</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="w_input">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>540</y>
-      <width>71</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="w_label">
     <property name="geometry">
      <rect>
       <x>650</x>
@@ -370,33 +359,23 @@ font-weight: bold;</string>
      </rect>
     </property>
     <property name="text">
-     <string>W :</string>
+     <string>Z :</string>
     </property>
    </widget>
    <widget class="QPushButton" name="manipulator_run">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>330</x>
       <y>580</y>
-      <width>131</width>
+      <width>211</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(220, 138, 221);</string>
     </property>
     <property name="text">
      <string>이동</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="study_btn">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>580</y>
-      <width>131</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>학습 시작</string>
     </property>
    </widget>
    <widget class="Line" name="line">
@@ -527,6 +506,19 @@ font-weight: bold;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="stydy_btn">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>580</y>
+      <width>211</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>학습시작</string>
     </property>
    </widget>
   </widget>

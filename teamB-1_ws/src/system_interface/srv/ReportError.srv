@@ -1,0 +1,7 @@
+# req
+string error_msg
+---
+# res
+bool success
+string message
+

@@ -41,9 +41,9 @@ padding: 2px;</string>
    <widget class="QLabel" name="name_label">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>120</x>
       <y>90</y>
-      <width>401</width>
+      <width>450</width>
       <height>81</height>
      </rect>
     </property>
@@ -55,7 +55,7 @@ padding: 2px;</string>
      </font>
     </property>
     <property name="text">
-     <string>지옥의 로키 허브</string>
+     <string>Rokey Fulfillment</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
