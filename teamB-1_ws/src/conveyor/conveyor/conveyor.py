@@ -53,9 +53,8 @@ class ControlConveyor(Node):
 
     def process_message(self, data):
         if data == "ON":
-            step_count = 1000  # 원하는 스텝 수
-            self.send_serial_command(f"{step_count}")  # 아두이노로 스텝 값 전송
-            self.get_logger().info(f"Turning conveyor ON with {step_count} steps")
+            self.send_serial_command("START")  # START 명령을 아두이노로 전송
+            self.get_logger().info(f"Turning conveyor ON ")
             
         elif data == "OFF":            
             self.send_serial_command("STOP")  # STOP 명령을 아두이노로 전송

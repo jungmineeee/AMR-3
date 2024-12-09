@@ -1,4 +1,4 @@
-import sys
+import sys, re, json
 import rclpy
 from rclpy.node import Node
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -107,37 +107,7 @@ class Ros2Worker(QThread):
     
     def publish_message(self, message):
         if self.node:
-            if isinstance(message, list) :
-                self.node.publish_message(message[0])
-                self.node.publish_message(message[1])
-                # 작업목록 json까지 두번 퍼블리시 로직
-                
-    #             # 숫자 추출 및 JSON 생성
-    #         job_data = self.extract_numbers(job_text)
-    #         job_json = json.dumps(job_data)
-            # 리스트 위젯에서 선택한 값으로 추출
-    # def extract_numbers(self, text):
-    #     """
-    #     텍스트에서 숫자 값을 추출하고 JSON 생성
-    #     """
-    #     # 정규표현식으로 red, blue, goto 숫자 추출
-    #     red_match = re.search(r'red\s*x(\d+)', text)
-    #     blue_match = re.search(r'blue\s*x(\d+)', text)
-    #     goto_match = re.search(r'goto\s+goal\s+(\d+)', text)
-
-    #     # 숫자 값 추출 (없을 경우 0으로 설정)
-    #     red_count = int(red_match.group(1)) if red_match else 0
-    #     blue_count = int(blue_match.group(1)) if blue_match else 0
-    #     goto_count = int(goto_match.group(1)) if goto_match else 0
-
-    #     # JSON 형식의 데이터 생성
-    #     return {
-    #         "red": red_count,
-    #         "blue": blue_count,
-    #         "to": goto_count
-    #     }
-            else :
-                self.node.publish_message(message)
+            self.node.publish_message(message)
 
     def stop(self):
         """Stop the ROS2 spinning loop."""
@@ -194,18 +164,39 @@ class MainGUI(QMainWindow):
 
     """ 슬롯 함수 """
     def click_play_btn(self) :
-        self.ros_worker.publish_message("PLAY")
+        current_item = self.job_list.currentItem()
         
-        """ GUI 상태 트리거 """
-        self.play_btn.setEnabled(False)
-        self.stop_btn.setEnabled(True)
-        self.pause_btn.setEnabled(True)
-        self.resume_btn.setEnabled(False)
-        self.reset_btn.setEnabled(False)
+        if current_item:
+            selected_text = current_item.text()
+            
+            red_match = re.search(r'red\s*x(\d+)', selected_text)
+            blue_match = re.search(r'blue\s*x(\d+)', selected_text)
+            goto_match = re.search(r'goto\s+goal\s+(\d+)', selected_text)
+            
+            red_count = int(red_match.group(1)) if red_match else 0
+            blue_count = int(blue_match.group(1)) if blue_match else 0
+            goto_count = int(goto_match.group(1)) if goto_match else 0
+                
+            json_data = {
+                "red": red_count,
+                "blue": blue_count,
+                "to": goto_count
+            }
+            
+            # JSON 데이터를 문자열로 변환하여 퍼블리시
+            json_string = json.dumps(json_data)
+            self.ros_worker.publish_message(f"PLAY={json_string}")
         
-        """타이머 시작"""
-        self.timer.start(1000)  # 1초마다 timeout 이벤트 발생
-        self.is_paused = False
+            """ GUI 상태 트리거 """
+            self.play_btn.setEnabled(False)
+            self.stop_btn.setEnabled(True)
+            self.pause_btn.setEnabled(True)
+            self.resume_btn.setEnabled(False)
+            self.reset_btn.setEnabled(False)
+            
+            """타이머 시작"""
+            self.timer.start(1000)  # 1초마다 timeout 이벤트 발생
+            self.is_paused = False
         
     def click_stop_btn(self) :
         self.ros_worker.publish_message("STOP")
@@ -500,7 +491,7 @@ class MainGUI(QMainWindow):
         pixmap = QPixmap.fromImage(qt_image)
         self.robot_cam.setPixmap(pixmap)
 
-    # QThred 종료
+    # QThread 종료
     def closeEvent(self, event):
         """Stop the ROS2 worker when the window is closed."""
         self.ros_worker.stop()
